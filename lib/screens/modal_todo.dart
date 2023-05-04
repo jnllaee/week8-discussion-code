@@ -11,10 +11,11 @@ import 'package:week7_networking_discussion/providers/todo_provider.dart';
 
 class TodoModal extends StatelessWidget {
   String type;
-  int todoIndex;
+  // int todoIndex;
   TextEditingController _formFieldController = TextEditingController();
 
-  TodoModal({super.key, required this.type, required this.todoIndex});
+  Todo? item;
+  TodoModal({super.key, required this.type, this.item});
 
   // Method to show the title of the modal depending on the functionality
   Text _buildTitle() {
@@ -39,7 +40,7 @@ class TodoModal extends StatelessWidget {
       case 'Delete':
         {
           return Text(
-            "Are you sure you want to delete '${todoItems[todoIndex].title}'?",
+            "Are you sure you want to delete ${item!.title}?",
           );
         }
       // Edit and add will have input field in them
@@ -48,37 +49,35 @@ class TodoModal extends StatelessWidget {
           controller: _formFieldController,
           decoration: InputDecoration(
             border: const OutlineInputBorder(),
-            hintText: todoIndex != -1 ? todoItems[todoIndex].title : '',
+            // hintText: todoIndex != -1 ? todoItems[todoIndex].title : '',
           ),
         );
     }
   }
 
   TextButton _dialogAction(BuildContext context) {
-    List<Todo> todoItems = context.read<TodoListProvider>().todo;
+    // List<Todo> todoItems = context.read<TodoListProvider>().todo;
 
     return TextButton(
       onPressed: () {
         switch (type) {
           case 'Add':
             {
-              // Instantiate a todo objeect to be inserted, default userID will be 1, the id will be the next id in the list
+              // Modify the add method to call the provider method
               Todo temp = Todo(
                   userId: 1,
                   completed: false,
                   title: _formFieldController.text);
-
               context.read<TodoListProvider>().addTodo(temp);
-
-              // Remove dialog after adding
               Navigator.of(context).pop();
+
               break;
             }
           case 'Edit':
             {
-              context
-                  .read<TodoListProvider>()
-                  .editTodo(todoIndex, _formFieldController.text);
+              // context
+              //     .read<TodoListProvider>()
+              //     .editTodo(todoIndex, _formFieldController.text);
 
               // Remove dialog after editing
               Navigator.of(context).pop();
@@ -86,9 +85,7 @@ class TodoModal extends StatelessWidget {
             }
           case 'Delete':
             {
-              context
-                  .read<TodoListProvider>()
-                  .deleteTodo(todoItems[todoIndex].title);
+              context.read<TodoListProvider>().deleteTodo(item!.id!);
 
               // Remove dialog after editing
               Navigator.of(context).pop();

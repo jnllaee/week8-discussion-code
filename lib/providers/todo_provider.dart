@@ -6,9 +6,27 @@
 
 import 'package:flutter/material.dart';
 import '../models/todo_model.dart';
+import '../api/firebase_todo_api.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class TodoListProvider with ChangeNotifier {
-  List<Todo> _todoList = [
+  late FirebaseTodoAPI firebaseService;
+
+  late Stream<QuerySnapshot> _todosStream;
+
+  TodoListProvider() {
+    firebaseService = FirebaseTodoAPI();
+    fetchTodos();
+  }
+
+  Stream<QuerySnapshot> get todos => _todosStream;
+
+  fetchTodos() {
+    _todosStream = firebaseService.getAllTodos();
+    notifyListeners();
+  }
+
+  final List<Todo> _todoList = [
     Todo(
       completed: true,
       userId: 1,
@@ -29,8 +47,9 @@ class TodoListProvider with ChangeNotifier {
   // getter
   List<Todo> get todo => _todoList;
 
-  void addTodo(Todo item) {
-    _todoList.add(item);
+  void addTodo(Todo item) async {
+    String message = await firebaseService.addTodo(item.toJson(item));
+    print(message);
     notifyListeners();
   }
 
@@ -39,12 +58,9 @@ class TodoListProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  void deleteTodo(String title) {
-    for (int i = 0; i < _todoList.length; i++) {
-      if (_todoList[i].title == title) {
-        _todoList.remove(_todoList[i]);
-      }
-    }
+  void deleteTodo(String id) async {
+    String message = await firebaseService.deleteTodo(id);
+    print(message);
     notifyListeners();
   }
 
